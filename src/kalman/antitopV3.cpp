@@ -252,6 +252,30 @@ bool AntitopV3::getFireCenter(const Eigen::Matrix<double, 4, 1>& pose) {
     return false;
 }
 
+//用getpose()预测ekf未来位置
+void EKF_predict(const Eigen::Matrix<double, 4, 1>& current_pose, TimePoint current_time, double predict_delay){
+    // 用当前YOLO观测值更新EKF模型
+    this->push(current_pose, current_time);
+    predicted_future_pose_ = this->getPose(predict_delay);
+    has_predicted_future_ = true;
+    current_predict_delay_ = predict_delay;
+}
+
+//计算预测位置与实际位置的误差
+double Future_PredictError(const Eigen::Matrix<double, 4, 1>& future_pose){
+    if(!has_predicted_future_){
+        return -1.0;
+    }
+    double error = sqrt(pow(predicted_future_pose_[0] - future_pose[0], 2) + pow(predicted_future_pose_[1] - future_pose[1], 2) + pow(predicted_future_pose_[2] - future_pose[2], 2));
+    double d_theta = fabs(getSafeSub(predicted_future_pose_[3], future_pose[3])) * 180 / M_PI;、
+    rm::message("antitop predict delay", current_predict_delay_);
+    rm::message("antitop predict error", error);
+    rm::message("ekf_yolo_angle_error", d_theta);
+    has_predicted_future_ = false;
+    return error;
+}
+
+
 void AntitopV3::setMatrixQ(double q0, double q1, double q2, double q3, double q4, double q5, double q6, double q7, double q8) {
     model_.Q << q0, 0, 0, 0, 0, 0, 0, 0, 0,
                 0, q1, 0, 0, 0, 0, 0, 0, 0,
