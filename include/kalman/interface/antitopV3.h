@@ -96,6 +96,8 @@ public:
     void push(const Eigen::Matrix<double, 4, 1>& pose, TimePoint t);
     Eigen::Matrix<double, 4, 1> getPose(double append_delay);
     Eigen::Matrix<double, 4, 1> getCenter(double append_delay);
+    void EKF_predict(const Eigen::Matrix<double, 4, 1>& current_pose, TimePoint current_time, double predict_delay); //用于预测未来位姿的函数
+    double Future_PredictError(const Eigen::Matrix<double, 4, 1>& future_pose); //用于计算预测误差的函数,返回欧氏距离；
 
     void setMatrixQ(double, double, double, double, double, double, double, double, double);
     void setMatrixR(double, double, double, double);
@@ -125,6 +127,10 @@ private:
     int    getToggle(const double, const double);                   // 获取切换标签
     double getWeightByTheta(const double);                          // 根据角度获取权重
     bool   isAngleTrans(const double, const double);                
+
+    Eigen::Matrix<double, 4, 1> predicted_future_pose_;             // 存储当前时刻用getpose()预测的未来位姿
+    bool has_predicted_future_ = false;                             // 标记是否有有效的预测结果
+    double current_predict_delay_ = 0.0;                            // 记录当前预测的延迟时间
 
     double   r_[2] = {0.25, 0.25};                                  // 两个位姿的半径
     double   z_[2] = {0, 0};                                        // 两个位姿的高度
