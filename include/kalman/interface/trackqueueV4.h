@@ -14,15 +14,15 @@ namespace rm {
 struct TrackQueueV4_FuncA {
     template<class T>
     void operator()(const T x0[8], T x1[8]) {
-        x1[0] = x0[0] + dt * x0[3] * ceres::cos(x0[5]) + 0.5 * dt * dt * x0[7] * ceres::cos(x0[5]);
-        x1[1] = x0[1] + dt * x0[3] * ceres::sin(x0[5]) + 0.5 * dt * dt * x0[7] * ceres::sin(x0[5]);
-        x1[2] = x0[2] + dt * x0[4];
-        x1[3] = x0[3] + dt * x0[7];
-        x1[4] = x0[4];
-        x1[5] = x0[5] + dt * x0[6];
-        x1[6] = x0[6];
-        x1[7] = x0[7];
-    }
+        x1[0] = x0[0] + dt * x0[3];              // x = x0 + vx*dt
+        x1[1] = x0[1] + dt * x0[4];              // y = y0 + vy*dt
+        x1[2] = x0[2] + dt * x0[5];              // z = z0 + vz*dt
+        x1[3] = x0[3];                           // vx保持不变（或考虑ax）
+        x1[4] = x0[4];                           // vy保持不变（或考虑ay）
+        x1[5] = x0[5];                           // vz保持不变
+        x1[6] = x0[6] + dt * x0[7];              // yaw = yaw0 + yaw_rate*dt
+        x1[7] = x0[7];                           // yaw_rate保持不变
+    } //天大的那个可能有些问题， 先试一试这个版本的， Vx, Vy, Vz都不变?
     double dt;
 };
 
